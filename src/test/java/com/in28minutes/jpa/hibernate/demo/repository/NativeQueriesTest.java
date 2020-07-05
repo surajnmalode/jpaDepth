@@ -23,32 +23,33 @@ import com.in28minutes.jpa.hibernate.demo.entity.Course;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes=DemoApplication.class)
-public class JPQLTest {
+public class NativeQueriesTest {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	EntityManager em;
 
 	@Test
-	public void jpql_basic() {
-		Query query = em.createNamedQuery("query_get_all_courses");
+	public void native_queries_basic() {
+		Query query = em.createNativeQuery("SELECT * FROM COURSE", Course.class);
 		List resultList= query.getResultList();
-		logger.info("Select c From Course c->{}", resultList);
+		logger.info("SELECT * FROM COURSE->{}", resultList);
+	}
+	
+	@Test
+	public void native_queries_with_parameters() {
+		Query query = em.createNativeQuery("SELECT * FROM COURSE where id=?", Course.class);
+		query.setParameter(1, 10000L);
+		List resultList= query.getResultList();
+		logger.info("SELECT * FROM COURSE where id=?->{}", resultList);
+	}
+	
+	@Test
+	public void native_queries_with_named_parameters() {
+		Query query = em.createNativeQuery("SELECT * FROM COURSE where id= :id", Course.class);
+		query.setParameter("id", 10000L);
+		List resultList= query.getResultList();
+		logger.info("SELECT * FROM COURSE where id= :id->{}", resultList);
 	}
 
-	@Test
-	public void jpql_typed() {
-		TypedQuery<Course> query = 
-				em.createNamedQuery("query_get_all_courses", Course.class);
-		List resultList= query.getResultList();
-		logger.info("Select c From Course c->{}", resultList);
-	}
-
-	@Test
-	public void jpql_where() {
-		TypedQuery<Course> query = 
-				em.createNamedQuery("query_get_100_Step_courses", Course.class);
-		List resultList= query.getResultList();
-		logger.info("query_get_100_Step_courses'->{}", resultList);
-	}
 }
